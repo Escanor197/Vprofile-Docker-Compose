@@ -32,7 +32,7 @@ This project demonstrates a complete multi-tier application deployment using Doc
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/AyaHeshmatAbdo/vprofile-docker-compose.git
+git clone https://github.com/Escanor197/Vprofile-Docker-Compose.git
 cd vprofile-docker-compose
 ```
 
