@@ -1,0 +1,59 @@
+
+services:
+  vprodb:
+    build: ./db
+    image: db01:V1.1
+    container_name: db01
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_vol:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=vprodbpass
+      
+  vprocache01:
+    image: memcached:latest
+    container_name: mc01
+    ports:
+      - "11211:11211"
+    depends_on:
+      - vprodb
+  vpromq01:
+    image: rabbitmq:4.1.7
+    container_name: rmq01
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    depends_on:
+      - vprocache01
+      
+  vproapp:
+    build: ./app
+    image: app:V1.0
+    container_name: app01
+    ports:
+      - "8080:8080"
+    volumes:
+      - app_vol:/usr/local/tomcat/webapps
+    depends_on:
+      vpromq01:
+        condition: service_healthy
+  vproweb:
+    build: ./web
+    image: web:V1.0
+    container_name: web01
+    ports:
+      - "80:80"
+    depends_on:
+      - vproapp
+volumes:
+  app_vol:
+  db_vol: 
